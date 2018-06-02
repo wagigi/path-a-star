@@ -22,7 +22,7 @@ def heuristique(a, b):
 
 def trouve_le_chemin(array, debut, arrive):
 
-    # Create a copy for drawing
+    # Creation d'une copie pour dessin
     cadre = copy.deepcopy(array)
 
     dessine_graphe(cadre, debut, arrive)
@@ -99,7 +99,6 @@ def dessine_graphe(graphe, start, goal, solution=None, trouve=False):
 
     for point in graphe[0]:
         delim += "="
-
 
     print(delim)
     for ligne in graphe:
@@ -330,4 +329,4 @@ if __name__ == '__main__':
     trouve_le_chemin(carte, (15, 16), (25, 0))
     lancement(temps_attente)
     # impossible
-    # astar(carte, (0, 0), (30, 33))
+    # trouve_le_chemin(carte, (0, 0), (30, 33))
