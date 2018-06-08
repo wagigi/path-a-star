@@ -1,11 +1,14 @@
 import copy
-
 import numpy
 from heapq import *
 from time import sleep
 import os
 
-
+# On liste les couleurs dont on aura besoin :
+#   - OKGREEN = vert = passage dans le noeud ok
+#   - ENDC = 
+#   - WARNING = 
+#   - OKBLUE = 
 class Bcolors:
     OKGREEN = '\033[92m'
     ENDC = '\033[0m'
@@ -15,36 +18,49 @@ class Bcolors:
 
 def clear(): os.system('clear')
 
-
+# On calcule la distance entre le noeud actuel et le noeud final
 def heuristique(a, b):
     return (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2
 
-
+# Fonction principale qui lance la recherche du chemin
 def trouve_le_chemin(array, debut, arrive):
 
     # Creation d'une copie pour dessin
     cadre = copy.deepcopy(array)
 
+    # On dessine le labyrinthe
     dessine_graphe(cadre, debut, arrive)
 
-    # enleve car autorise le passe muraille (coin)
-    # voisins = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    # On défini les coordonnées d'un voisin
     voisins = [(1, 0), (0, 1), (0, -1), (-1, 0)]
 
+    # On défini la liste fermee
     close_set = set()
+
+    
     point_precedent = {}
+    
+    # On défini le score à atteindre (distance heuristique)
     gscore = {debut: 0}
+
+    # On défini le score initial
     fscore = {debut: heuristique(debut, arrive)}
+
+    # On défini un tableau de score
     oheap = []
 
+    # On ajoute le premier score
     heappush(oheap, (fscore[debut], debut))
 
     while oheap:
 
+        # On défini le noeud courant
         current = heappop(oheap)[1]
+        # On dessine le graphe 
         dessine_graphe(cadre, debut, arrive, [current])
-        sleep(0.01)
         clear()
+        
+        # Si on arrive à l'arrivée on dessine le chemin le plus court trouvé
         if current == arrive:
             chemin = []
             while current in point_precedent:
@@ -54,10 +70,17 @@ def trouve_le_chemin(array, debut, arrive):
             dessine_graphe(cadre, debut, arrive, chemin, True)
             return chemin
 
+        # On ajoute le noeud actuel à la liste fermée
         close_set.add(current)
+
+        # On parcours chaque voisins du noeud actuel
         for ordonne, abscisse in voisins:
+            # On défini le voisin choisi
             voisin = current[0] + ordonne, current[1] + abscisse
+            # On calcul le score trouvé
             tentative_g_score = gscore[current] + heuristique(current, voisin)
+            
+            # On teste les collisions
             if 0 <= voisin[0] < array.shape[0]:
                 if 0 <= voisin[1] < array.shape[1]:
                     if array[voisin[0]][voisin[1]] == 1:
@@ -69,10 +92,13 @@ def trouve_le_chemin(array, debut, arrive):
                 # on rencontre un mur x
                 continue
 
+            # Si le voisin actuel est dans la liste fermée et que le score est supérieur au score d'un autre voisin, on continue
             if voisin in close_set and tentative_g_score >= gscore.get(voisin, 0):
                 continue
-
+            
+            # Si le score actuel est inférieur au score du voisin ou que le voisin ne fait pas parti des noeuds parcourus
             if tentative_g_score < gscore.get(voisin, 0) or voisin not in [i[1] for i in oheap]:
+                # On se replace sur le noeud précédent et on redéfini les variables initiales pour repartir
                 point_precedent[voisin] = current
                 gscore[voisin] = tentative_g_score
                 fscore[voisin] = tentative_g_score + heuristique(voisin, arrive)
@@ -232,7 +258,7 @@ if __name__ == '__main__':
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
-    trouve_le_chemin(carte0, (0, 0), (10, 1))
+    trouve_le_chemin(carte01, (0, 0), (1, 10))
     lancement(temps_attente)
     trouve_le_chemin(carte01, (0, 0), (11, 10))
     lancement(temps_attente)
@@ -329,4 +355,4 @@ if __name__ == '__main__':
     trouve_le_chemin(carte, (15, 16), (25, 0))
     lancement(temps_attente)
     # impossible
-    # trouve_le_chemin(carte, (0, 0), (30, 33))
+    trouve_le_chemin(carte, (0, 0), (30, 33))
